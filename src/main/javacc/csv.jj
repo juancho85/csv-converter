@@ -1,0 +1,61 @@
+PARSER_BEGIN(CSV)
+package com.juancho85.parser.generated;
+
+import java.io.InputStream;
+import com.juancho85.parser.ParserInterface;
+
+public class CSV {
+    private static String cleanField(String stringChain) {
+        if (stringChain.startsWith("\"")) {
+            return stringChain.substring(1, stringChain.length() - 1).replaceAll("\"\"", "\"");
+        }
+        return stringChain;
+    }
+
+    public static void parse(InputStream is, ParserInterface parser) throws ParseException {
+        CSV c = new CSV(is);
+        c.csvFile(parser);
+    }
+}
+
+PARSER_END(CSV)
+
+SKIP :
+{
+    " "
+|   "\r"
+|   "\t"
+}
+
+TOKEN:
+{
+   <FIELD: ( "\"" ( (~["\""]) | ("\"\"") )* "\"" ) |
+        (~[" ","\t","\r","\n",","] )* > |
+   <COMMA: "," > |
+   <NEWLINE: ("\r\n" | "\n" | "\r") >
+}
+
+void csvFile(ParserInterface parser) :
+{
+}
+{
+   ( (csvData(parser))? (<NEWLINE > (csvData(parser))?)* <EOF > )
+}
+
+void csvData(ParserInterface parser) :
+{
+ java.util.List l = new java.util.ArrayList();
+ Token t;
+}
+{
+   ( t= <FIELD > {l.add(cleanField(t.image)); }
+    ( <COMMA> t= <FIELD > {l.add(cleanField(t.image)); } )* )
+   {
+    if (parser.getLineNumber() == 0) {
+        parser.setHeaders(l);
+    } else {
+        parser.parse(l);
+    }
+    parser.increaseLineNumber();
+   }
+}
