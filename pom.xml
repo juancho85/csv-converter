@@ -14,20 +14,25 @@
         <java.version>8</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
+        <javacc.version>6.1.2</javacc.version>
+        <javacc-maven-plugin.version>2.6</javacc-maven-plugin.version>
     </properties>
 
     <dependencies>
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.12</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Cli -->
         <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
             <version>4.2.0</version>
         </dependency>
+        <!-- Logging -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
@@ -38,22 +43,29 @@
             <artifactId>log4j-core</artifactId>
             <version>2.12.1</version>
         </dependency>
-
+        <!-- Java compiler compiler -->
         <dependency>
             <groupId>net.java.dev.javacc</groupId>
             <artifactId>javacc</artifactId>
-            <version>6.1.2</version>
+            <version>${javacc.version}</version>
         </dependency>
+        <!-- Java compiler compiler code generation-->
         <dependency>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>javacc-maven-plugin</artifactId>
-            <version>2.6</version>
+            <version>${javacc-maven-plugin.version}</version>
         </dependency>
-
+        <!-- Templating engine -->
         <dependency>
             <groupId>org.rythmengine</groupId>
             <artifactId>rythm-engine</artifactId>
             <version>1.2.2</version>
+        </dependency>
+        <!-- Dependency injection -->
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>4.2.3</version>
         </dependency>
     </dependencies>
 
@@ -62,7 +74,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>javacc-maven-plugin</artifactId>
-                <version>2.6</version>
+                <version>${javacc-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -74,7 +86,7 @@
                     <dependency>
                         <groupId>net.java.dev.javacc</groupId>
                         <artifactId>javacc</artifactId>
-                        <version>6.1.2</version>
+                        <version>${javacc.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>

@@ -1,29 +1,22 @@
 package com.juancho85;
 
-import com.juancho85.output.MultiFileOutputAggregator;
-import com.juancho85.output.OutputAggregator;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.juancho85.injection.ConverterModule;
 import com.juancho85.output.OutputType;
-import com.juancho85.output.SingleFileOutputAggregator;
-import com.juancho85.parser.CsvParser;
-import com.juancho85.parser.ParserInterface;
-import com.juancho85.parser.generated.CSV;
-import com.juancho85.template.RythmTemplatingEngine;
-import com.juancho85.template.TemplatingEngine;
+import com.juancho85.parser.Runner;
 import lombok.extern.log4j.Log4j2;
 import picocli.CommandLine;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 
 import static picocli.CommandLine.*;
 
-@Command(description = "Reads com.juancho85.csv and transforms it into JSON",
-        name = "com.juancho85.csv-json-transformer",
+@Command(description = "Reads com.juancho85.csv and transforms it using a template",
+        name = "com.juancho85.csv-converter",
         mixinStandardHelpOptions = true,
-        version = "com.juancho85.csv-json-transformer 1.0")
+        version = "com.juancho85.csv-converter 1.0")
 @Log4j2
 class Converter implements Callable<Integer> {
 
@@ -46,38 +39,16 @@ class Converter implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        try(FileInputStream fis = new FileInputStream(file)) {
-            ParserInterface parser = new CsvParser();
-            CSV.parse(fis, parser);
-            if(templateFilePath == null) {
-                templateFilePath = this.getClass().getClassLoader().getResource("examples/templates/book.template.json").getPath();
-                log.info("setting default template path {}", templateFilePath);
-
-            }
-
-            if(outputPath == null) {
-                outputPath = this.getClass().getClassLoader().getResource("examples/output").getPath();
-                log.info("setting default template path {}", outputPath);
-            }
-
-            String template = new String(Files.readAllBytes(Paths.get(templateFilePath)));
-            getOutputAggregator().handleLines(getTemplatingEngine(template), parser.getParsedLines());
-        }
+        final Injector injector = Guice.createInjector(ConverterModule.builder()
+                .templateFilePath(templateFilePath)
+                .outputType(outputType)
+                .outputPath(outputPath)
+                .file(file)
+                .build()
+        );
+        Runner runner = injector.getInstance(Runner.class);
+        runner.run();
         return 0;
-    }
-
-    private TemplatingEngine getTemplatingEngine(String template) {
-        return new RythmTemplatingEngine(template);
-    }
-
-    private OutputAggregator getOutputAggregator() {
-        switch(outputType) {
-            case MULTI_FILE:
-                return new MultiFileOutputAggregator(outputPath);
-            case SINGLE_FILE:
-            default:
-                return new SingleFileOutputAggregator(outputPath);
-        }
     }
 
 }

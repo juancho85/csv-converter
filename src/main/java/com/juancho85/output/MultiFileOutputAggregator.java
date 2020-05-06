@@ -1,8 +1,10 @@
 package com.juancho85.output;
 
+import com.juancho85.injection.ConverterModule;
 import com.juancho85.template.TemplatingEngine;
 import lombok.extern.log4j.Log4j2;
 
+import javax.inject.Inject;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,13 +16,16 @@ import java.util.UUID;
 public class MultiFileOutputAggregator implements OutputAggregator {
 
     private String outputFolder;
+    private TemplatingEngine engine;
 
-    public MultiFileOutputAggregator(String outputFolder) {
+    @Inject
+    public MultiFileOutputAggregator(@ConverterModule.OutputPath String outputFolder, TemplatingEngine engine) {
         this.outputFolder = outputFolder;
+        this.engine = engine;
     }
 
     @Override
-    public void handleLines(TemplatingEngine engine, List<Map<String, String>> parsedLines) {
+    public void handleLines(List<Map<String, String>> parsedLines) {
         for(Map<String, String> parsedLine : parsedLines) {
             handleLine(engine.render(parsedLine));
         }
