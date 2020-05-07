@@ -1,0 +1,5 @@
+{
+  "id": "@movieId",
+  "title": "@title",
+  "genres": "@genres"
+}

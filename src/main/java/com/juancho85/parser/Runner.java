@@ -4,6 +4,7 @@ import com.juancho85.injection.ConverterModule;
 import com.juancho85.output.OutputAggregator;
 import com.juancho85.parser.generated.CSV;
 import com.juancho85.parser.generated.ParseException;
+import com.juancho85.statistics.Timed;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 
@@ -17,21 +18,18 @@ public class Runner {
 
     private File file;
     private ParserInterface parser;
-    private OutputAggregator aggregator;
 
     @Inject
-    public Runner(@ConverterModule.CsvFile File file, ParserInterface parser, OutputAggregator aggregator) {
+    public Runner(@ConverterModule.CsvFile File file, ParserInterface parser) {
         this.file = file;
         this.parser = parser;
-        this.aggregator = aggregator;
     }
 
-
     @SneakyThrows
+    @Timed
     public void run() {
         try(FileInputStream fis = new FileInputStream(file)) {
             CSV.parse(fis, parser);
-            aggregator.handleLines(parser.getParsedLines());
         } catch (IOException | ParseException e) {
             log.error("Could not parse the file", e);
             throw e;

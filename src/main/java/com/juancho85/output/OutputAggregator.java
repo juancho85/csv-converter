@@ -5,5 +5,5 @@ import java.util.Map;
 
 public interface OutputAggregator {
 
-    void handleLines(List<Map<String, String>> parsedLines);
+    void handleLine(Map<String, String> parsedLine);
 }

@@ -1,11 +1,17 @@
 package com.juancho85.parser;
 
+import com.juancho85.output.OutputAggregator;
+import com.juancho85.statistics.Timed;
+import lombok.extern.log4j.Log4j2;
+
+import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+@Log4j2
 public class CsvParser implements ParserInterface {
 
     private List<String> headers;
@@ -14,13 +20,11 @@ public class CsvParser implements ParserInterface {
 
     private int lineNumber = 0;
 
+    private OutputAggregator aggregator;
 
-    public void addParsedLine(Map<String, String> parsedLine) {
-        this.parsedLines.add(parsedLine);
-    }
-
-    public List<Map<String, String>> getParsedLines() {
-        return this.parsedLines;
+    @Inject
+    public CsvParser(OutputAggregator aggregator) {
+        this.aggregator = aggregator;
     }
 
     public List<String> getHeaders() {
@@ -41,10 +45,18 @@ public class CsvParser implements ParserInterface {
 
     @Override
     public void parse(List<String> line) {
-        Map<String, String> parsedLine = new HashMap<>();
-        IntStream.range(0, line.size()).forEach((index) -> {
-            parsedLine.put(getHeaders().get(index), line.get(index));
-        });
-        addParsedLine(parsedLine);
+        final Map<String, String> parsedLine = zipToMap(getHeaders(), line);
+        aggregator.handleLine(parsedLine);
+    }
+
+    public Map<String, String> zipToMap(List<String> keys, List<String> values) {
+        if(keys.size() != values.size()) {
+            log.error("Key value sizes not matching for");
+            log.error("Keys: {}", keys);
+            log.error("Values: {}", values);
+        }
+        return IntStream.range(0, keys.size())
+                .boxed()
+                .collect(Collectors.toMap(keys::get, values::get));
     }
 }

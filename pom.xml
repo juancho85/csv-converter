@@ -61,7 +61,7 @@
             <artifactId>rythm-engine</artifactId>
             <version>1.2.2</version>
         </dependency>
-        <!-- Dependency injection -->
+        <!-- Dependency injection and AOP-->
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>

@@ -2,12 +2,15 @@ package com.juancho85.injection;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Key;
+import com.google.inject.matcher.Matchers;
 import com.juancho85.output.MultiFileOutputAggregator;
 import com.juancho85.output.OutputAggregator;
 import com.juancho85.output.OutputType;
 import com.juancho85.output.SingleFileOutputAggregator;
 import com.juancho85.parser.CsvParser;
 import com.juancho85.parser.ParserInterface;
+import com.juancho85.statistics.MonitorAspect;
+import com.juancho85.statistics.Timed;
 import com.juancho85.template.RythmTemplatingEngine;
 import com.juancho85.template.TemplatingEngine;
 import lombok.Builder;
@@ -39,8 +42,9 @@ public class ConverterModule extends AbstractModule {
     protected void configure() {
         bind(Key.get(File.class, CsvFile.class)).toInstance(file);
         bind(Key.get(String.class, OutputPath.class)).toInstance(outputPath);
-        bind(ParserInterface.class).toInstance(new CsvParser());
+        bind(ParserInterface.class).to(CsvParser.class);
         bind(TemplatingEngine.class).toInstance(new RythmTemplatingEngine(templateFilePath));
+        bindInterceptor(Matchers.any(), Matchers.annotatedWith(Timed.class), new MonitorAspect());
         switch(outputType) {
             case MULTI_FILE:
                 bind(OutputAggregator.class).to(MultiFileOutputAggregator.class);

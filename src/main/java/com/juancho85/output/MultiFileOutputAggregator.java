@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -25,15 +24,9 @@ public class MultiFileOutputAggregator implements OutputAggregator {
     }
 
     @Override
-    public void handleLines(List<Map<String, String>> parsedLines) {
-        for(Map<String, String> parsedLine : parsedLines) {
-            handleLine(engine.render(parsedLine));
-        }
-    }
-
-    private void handleLine(String line) {
+    public void handleLine(Map<String, String> parsedLine) {
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(String.format("%s/%s.json", this.outputFolder, UUID.randomUUID().toString())))) {
-            writer.write(line);
+            writer.write(engine.render(parsedLine));
         } catch (IOException e) {
             log.error("cannot write to output folder", e);
         }
