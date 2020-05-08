@@ -1,0 +1,6 @@
+{
+  "userId": "@UserID",
+  "movieId": "@MovieID",
+  "rating": "@Rating",
+  "timestamp": "@Timestamp"
+}

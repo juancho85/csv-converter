@@ -50,11 +50,6 @@ public class CsvParser implements ParserInterface {
     }
 
     public Map<String, String> zipToMap(List<String> keys, List<String> values) {
-        if(keys.size() != values.size()) {
-            log.error("Key value sizes not matching for");
-            log.error("Keys: {}", keys);
-            log.error("Values: {}", values);
-        }
         return IntStream.range(0, keys.size())
                 .boxed()
                 .collect(Collectors.toMap(keys::get, values::get));

@@ -1,3 +1,7 @@
+options {
+  UNICODE_INPUT=true;
+}
+
 PARSER_BEGIN(CSV)
 package com.juancho85.parser.generated;
 
@@ -29,8 +33,7 @@ SKIP :
 
 TOKEN:
 {
-   <FIELD: ( "\"" ( (~["\""]) | ("\"\"") )* "\"" ) |
-        (~["\t","\r","\n",","] )* > |
+   <FIELD: ( "\"" ( (~["\""]) | ("\"\"") )* "\"" ) | (~["\t","\r","\n",","] )* > |
    <COMMA: "," > |
    <NEWLINE: ("\r\n" | "\n" | "\r") >
 }
