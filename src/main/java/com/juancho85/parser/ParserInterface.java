@@ -6,10 +6,6 @@ public interface ParserInterface {
 
     List<String> getHeaders();
 
-    int getLineNumber();
-
-    void increaseLineNumber();
-
     void setHeaders(List<String> headers);
 
     void parse(List<String> line);

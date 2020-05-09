@@ -7,6 +7,8 @@ package com.juancho85.parser.generated;
 
 import java.io.InputStream;
 import com.juancho85.parser.ParserInterface;
+import java.util.List;
+import java.util.ArrayList;
 
 public class CSV {
     private static String cleanField(String stringChain) {
@@ -40,25 +42,30 @@ TOKEN:
 
 void csvFile(ParserInterface parser) :
 {
+        int linesRead = 0;
 }
 {
-   ( (csvData(parser))? (<NEWLINE > (csvData(parser))?)* <EOF > )
+   ((linesRead = csvData(parser, linesRead))? (<NEWLINE > (linesRead = csvData(parser, linesRead))?)* <EOF > )
 }
 
-void csvData(ParserInterface parser) :
+int csvData(ParserInterface parser, int linesRead) :
 {
- java.util.List l = new java.util.ArrayList();
+ List<String> l = new ArrayList<String>();
  Token t;
 }
 {
-   ( t= <FIELD > {l.add(cleanField(t.image)); }
-    ( <COMMA> t= <FIELD > {l.add(cleanField(t.image)); } )* )
+   ( t = <FIELD> {l.add(cleanField(t.image)); }
+     ( <COMMA> t = <FIELD> {l.add(cleanField(t.image)); } )*
+   )
    {
-    if (parser.getLineNumber() == 0) {
+
+    if (linesRead == 0) {
         parser.setHeaders(l);
     } else {
         parser.parse(l);
     }
-    parser.increaseLineNumber();
+
+    return ++linesRead;
    }
+
 }
