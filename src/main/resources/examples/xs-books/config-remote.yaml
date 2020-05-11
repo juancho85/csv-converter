@@ -1,0 +1,7 @@
+url: "https://raw.githubusercontent.com/juancho85/csv-converter/master/src/main/resources/examples/xs-books/data.csv"
+headers:
+- title
+- author
+- id
+template: /home/juandavid/4_perso/csv-converter/src/main/resources/examples/xs-books/template.json
+output: /tmp/output

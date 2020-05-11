@@ -1,8 +1,0 @@
-url: "https://github.com/juancho85/csv-converter/raw/master/src/main/resources/examples/csvs/ratings-1-m.csv"
-headers:
-- UserID
-- MovieID
-- Rating
-- Timestamp
-template: /home/juandavid/4_perso/csv-converter/src/main/resources/examples/templates/rating.template.json
-output: /tmp/output

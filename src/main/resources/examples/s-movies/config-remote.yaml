@@ -1,0 +1,7 @@
+url: "https://raw.githubusercontent.com/juancho85/csv-converter/master/src/main/resources/examples/s-movies/data.csv"
+headers:
+- movieId
+- title
+- genres
+template: /home/juandavid/4_perso/csv-converter/src/main/resources/examples/s-movies/template.json
+output: /tmp/output
