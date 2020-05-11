@@ -19,6 +19,8 @@ public class AsyncCsvHandler extends AsyncCompletionHandler<Integer> {
 
     private String incompleteLine = "";
 
+    String OS_LINE_SEPARATOR = System.getProperty("line.separator");
+
 
     private ParserInterface parser;
 
@@ -37,8 +39,7 @@ public class AsyncCsvHandler extends AsyncCompletionHandler<Integer> {
             chunk = incompleteLine + chunk;
         }
         if(!bodyPart.isLast()) {
-            // TODO handle windows CR
-            int position = chunk.lastIndexOf("\n");
+            int position = chunk.lastIndexOf(OS_LINE_SEPARATOR);
             if(position!=-1 && position!= chunk.length()){
                 // Store incomplete line to add to next chuck received
                 incompleteLine = chunk.substring(position + 1);
