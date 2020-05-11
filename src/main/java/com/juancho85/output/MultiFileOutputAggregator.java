@@ -25,7 +25,8 @@ public class MultiFileOutputAggregator implements OutputAggregator {
 
     @Override
     public void handleLine(Map<String, String> parsedLine) {
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(String.format("%s/%s.json", this.outputFolder, UUID.randomUUID().toString())))) {
+        String outputFile = String.format("%s/%s.json", this.outputFolder, UUID.randomUUID().toString());
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
             writer.write(engine.render(parsedLine));
         } catch (IOException e) {
             log.error("cannot write to output folder", e);

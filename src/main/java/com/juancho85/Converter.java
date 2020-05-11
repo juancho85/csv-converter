@@ -3,15 +3,20 @@ package com.juancho85;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.juancho85.injection.ConverterModule;
-import com.juancho85.output.OutputType;
-import com.juancho85.parser.Runner;
+import com.juancho85.runner.Configuration;
+import com.juancho85.runner.RunnerInterface;
 import lombok.extern.log4j.Log4j2;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 import picocli.CommandLine;
 
-import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.concurrent.Callable;
 
-import static picocli.CommandLine.*;
+import static picocli.CommandLine.Command;
+import static picocli.CommandLine.Option;
 
 @Command(description = "Reads com.juancho85.csv and transforms it using a template",
         name = "com.juancho85.csv-converter",
@@ -20,17 +25,8 @@ import static picocli.CommandLine.*;
 @Log4j2
 class Converter implements Callable<Integer> {
 
-    @Parameters(index = "0", description = "The csv file.")
-    private File file;
-
-    @Option(names = {"-t", "--template-file"}, description = "Template file path")
-    private String templateFilePath;
-
-    @Option(names = {"-o", "--output-path"}, description = "Output path")
-    private String outputPath;
-
-    @Option(names = {"-ot", "--output-type"}, description = "Output type")
-    private OutputType outputType = OutputType.SINGLE_FILE;
+    @Option(names = {"-c", "--config-file"}, description = "Configuration file", required = true)
+    private String configFilePath;
 
     public static void main(String... args) throws Exception {
         int exitCode = new CommandLine(new Converter()).execute(args);
@@ -39,16 +35,27 @@ class Converter implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
+        Configuration configuration = getValidatedConfiguration();
         final Injector injector = Guice.createInjector(ConverterModule.builder()
-                .templateFilePath(templateFilePath)
-                .outputType(outputType)
-                .outputPath(outputPath)
-                .file(file)
+                .templateFilePath(configuration.getTemplate())
+                .outputPath(configuration.getOutput())
+                .headers(configuration.getHeaders())
+                .localFilePath(configuration.getFile())
+                .remoteFileUrl(configuration.getUrl())
                 .build()
         );
-        Runner runner = injector.getInstance(Runner.class);
+        RunnerInterface runner = injector.getInstance(RunnerInterface.class);
         runner.run();
         return 0;
+    }
+
+    private Configuration getValidatedConfiguration() throws FileNotFoundException {
+        // TODO: validate configuration
+        Yaml yaml = new Yaml(new Constructor(Configuration.class));
+        InputStream inputStream = new FileInputStream(configFilePath);
+        Configuration configuration = yaml.load(inputStream);
+        log.info("Parsed configuration {}", configuration);
+        return configuration;
     }
 
 }

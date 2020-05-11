@@ -2,13 +2,16 @@ package com.juancho85.injection;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
+import com.google.inject.util.Types;
 import com.juancho85.output.MultiFileOutputAggregator;
 import com.juancho85.output.OutputAggregator;
-import com.juancho85.output.OutputType;
-import com.juancho85.output.SingleFileOutputAggregator;
 import com.juancho85.parser.CsvParser;
 import com.juancho85.parser.ParserInterface;
+import com.juancho85.runner.LocalFileRunner;
+import com.juancho85.runner.RemoteFileRunner;
+import com.juancho85.runner.RunnerInterface;
 import com.juancho85.statistics.MonitorAspect;
 import com.juancho85.statistics.Timed;
 import com.juancho85.template.RythmTemplatingEngine;
@@ -16,8 +19,8 @@ import com.juancho85.template.TemplatingEngine;
 import lombok.Builder;
 
 import javax.inject.Qualifier;
-import java.io.File;
 import java.lang.annotation.Retention;
+import java.util.List;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -25,34 +28,43 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public class ConverterModule extends AbstractModule {
 
     private String templateFilePath;
-    private OutputType outputType;
     private String outputPath;
     private ParserInterface parser;
-    private File file;
+    private String remoteFileUrl;
+    private String localFilePath;
+    private List<String> headers;
 
     @Qualifier
     @Retention(RUNTIME)
-    public @interface CsvFile {}
+    public @interface remoteFileUrl {}
+
+    @Qualifier
+    @Retention(RUNTIME)
+    public @interface localFilePath {}
 
     @Qualifier
     @Retention(RUNTIME)
     public @interface OutputPath {}
 
+    @Qualifier
+    @Retention(RUNTIME)
+    public @interface HeadersAnnotation {}
+
     @Override
     protected void configure() {
-        bind(Key.get(File.class, CsvFile.class)).toInstance(file);
+        if(localFilePath != null) {
+            bind(RunnerInterface.class).to(LocalFileRunner.class);
+            bind(Key.get(String.class, localFilePath.class)).toInstance(localFilePath);
+        } else if (remoteFileUrl != null) {
+            bind(RunnerInterface.class).to(RemoteFileRunner.class);
+            bind(Key.get(String.class, remoteFileUrl.class)).toInstance(remoteFileUrl);
+        }
+        bind(new TypeLiteral<List<String>>() {}).annotatedWith(HeadersAnnotation.class).toInstance(headers);
+        bind(OutputAggregator.class).to(MultiFileOutputAggregator.class);
         bind(Key.get(String.class, OutputPath.class)).toInstance(outputPath);
         bind(ParserInterface.class).to(CsvParser.class);
         bind(TemplatingEngine.class).toInstance(new RythmTemplatingEngine(templateFilePath));
         bindInterceptor(Matchers.any(), Matchers.annotatedWith(Timed.class), new MonitorAspect());
-        switch(outputType) {
-            case MULTI_FILE:
-                bind(OutputAggregator.class).to(MultiFileOutputAggregator.class);
-                break;
-            case SINGLE_FILE:
-            default:
-                bind(OutputAggregator.class).to(SingleFileOutputAggregator.class);
-        }
     }
 
 }

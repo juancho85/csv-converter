@@ -1,0 +1,7 @@
+file: /home/juandavid/4_perso/csv-converter/src/main/resources/examples/csvs/books.csv
+headers:
+- title
+- author
+- id
+template: /home/juandavid/4_perso/csv-converter/src/main/resources/examples/templates/book.template.json
+output: /tmp/output
