@@ -51,6 +51,7 @@ class Converter implements Callable<Integer> {
 
     private Configuration getValidatedConfiguration() throws FileNotFoundException {
         // TODO: validate configuration
+        // TODO: add option to infer headers (impact on reading remotely by chunks)
         Yaml yaml = new Yaml(new Constructor(Configuration.class));
         InputStream inputStream = new FileInputStream(configFilePath);
         Configuration configuration = yaml.load(inputStream);

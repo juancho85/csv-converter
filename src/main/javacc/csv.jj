@@ -62,6 +62,7 @@ int csvData(ParserInterface parser, int linesRead) :
    )
    {
 
+    // TODO: ignore headers if they are provided (or actually use them)
     if (linesRead == 0 && parser.getHeaders().isEmpty()) {
         parser.setHeaders(l);
     } else {
