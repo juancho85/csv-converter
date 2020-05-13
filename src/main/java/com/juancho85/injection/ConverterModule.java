@@ -4,13 +4,13 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
-import com.google.inject.util.Types;
+import com.juancho85.http.netty.HttpClient;
 import com.juancho85.output.MultiFileOutputAggregator;
 import com.juancho85.output.OutputAggregator;
 import com.juancho85.parser.CsvParser;
 import com.juancho85.parser.ParserInterface;
 import com.juancho85.runner.LocalFileRunner;
-import com.juancho85.runner.RemoteFileRunner;
+import com.juancho85.runner.NettyRemoteFileRunner;
 import com.juancho85.runner.RunnerInterface;
 import com.juancho85.statistics.MonitorAspect;
 import com.juancho85.statistics.Timed;
@@ -56,7 +56,8 @@ public class ConverterModule extends AbstractModule {
             bind(RunnerInterface.class).to(LocalFileRunner.class);
             bind(Key.get(String.class, localFilePath.class)).toInstance(localFilePath);
         } else if (remoteFileUrl != null) {
-            bind(RunnerInterface.class).to(RemoteFileRunner.class);
+//            bind(RunnerInterface.class).to(RemoteFileRunner.class);
+            bind(RunnerInterface.class).to(NettyRemoteFileRunner.class);
             bind(Key.get(String.class, remoteFileUrl.class)).toInstance(remoteFileUrl);
         }
         bind(new TypeLiteral<List<String>>() {}).annotatedWith(HeadersAnnotation.class).toInstance(headers);
@@ -65,6 +66,7 @@ public class ConverterModule extends AbstractModule {
         bind(ParserInterface.class).to(CsvParser.class);
         bind(TemplatingEngine.class).toInstance(new RythmTemplatingEngine(templateFilePath));
         bindInterceptor(Matchers.any(), Matchers.annotatedWith(Timed.class), new MonitorAspect());
+        bind(HttpClient.class);
     }
 
 }

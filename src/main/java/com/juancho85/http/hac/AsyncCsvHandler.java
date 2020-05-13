@@ -1,9 +1,7 @@
-package com.juancho85.http;
+package com.juancho85.http.hac;
 
-import com.juancho85.output.OutputAggregator;
 import com.juancho85.parser.ParserInterface;
 import com.juancho85.parser.generated.CSV;
-import com.juancho85.parser.generated.ParseException;
 import lombok.extern.log4j.Log4j2;
 import org.asynchttpclient.AsyncCompletionHandler;
 import org.asynchttpclient.HttpResponseBodyPart;
@@ -19,6 +17,7 @@ public class AsyncCsvHandler extends AsyncCompletionHandler<Integer> {
 
     private String incompleteLine = "";
 
+    // TODO: Use the actual line separator of the file received
     String OS_LINE_SEPARATOR = System.getProperty("line.separator");
 
 
@@ -32,31 +31,20 @@ public class AsyncCsvHandler extends AsyncCompletionHandler<Integer> {
     @Override
     public State onBodyPartReceived(HttpResponseBodyPart bodyPart)
             throws Exception {
-        // TODO: More efficient to work on bytes
-        String chunk = new String(bodyPart.getBodyPartBytes());
-        // TODO: edge cases? chunk smaller than a line?
-        if(!incompleteLine.isEmpty()) {
-            chunk = incompleteLine + chunk;
-        }
+        StringBuilder builder = new StringBuilder(new String(bodyPart.getBodyPartBytes()));
+        builder.insert(0, incompleteLine);
+        int lastCompleteLineCharPosition = builder.length() - 1;
         if(!bodyPart.isLast()) {
-            int position = chunk.lastIndexOf(OS_LINE_SEPARATOR);
-            if(position!=-1 && position!= chunk.length()){
-                // Store incomplete line to add to next chuck received
-                incompleteLine = chunk.substring(position + 1);
-                // Remove incomplete line from chunk
-                chunk = chunk.substring(0, position);
+            lastCompleteLineCharPosition = builder.lastIndexOf(OS_LINE_SEPARATOR);
+            if(lastCompleteLineCharPosition != -1 && lastCompleteLineCharPosition != builder.length()) {
+                incompleteLine = builder.substring(lastCompleteLineCharPosition + 1);
             }
         }
 
-        InputStream inputStream = new ByteArrayInputStream(chunk.getBytes(StandardCharsets.UTF_8));
+        InputStream inputStream = new ByteArrayInputStream(builder.substring(0, lastCompleteLineCharPosition).getBytes(StandardCharsets.UTF_8));
         refreshInstance(inputStream);
-        try {
-            CSV.parse(inputStream, parser);
-        } catch (ParseException e) {
-            log.error("Exception in Chunk");
-            log.error(chunk);
-        }
-
+        // TODO: Partial handling of file
+        CSV.parse(inputStream, parser);
         return State.CONTINUE;
     }
 

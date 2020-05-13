@@ -1,4 +1,4 @@
-package com.juancho85.http;
+package com.juancho85.http.hac;
 
 import com.juancho85.statistics.Timed;
 import lombok.extern.log4j.Log4j2;
@@ -6,9 +6,7 @@ import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.Dsl;
 
 import javax.inject.Inject;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 
 @Log4j2
 public class RemoteCsvHandler {

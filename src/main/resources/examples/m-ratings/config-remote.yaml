@@ -1,4 +1,4 @@
-url: "https://github.com/juancho85/csv-converter/raw/master/src/main/resources/examples/m-ratings/data.csv"
+url: "https://raw.githubusercontent.com/juancho85/csv-converter/master/src/main/resources/examples/m-ratings/data.csv"
 headers:
 - UserID
 - MovieID
