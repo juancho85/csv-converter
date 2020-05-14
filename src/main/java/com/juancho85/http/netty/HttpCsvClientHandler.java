@@ -23,10 +23,7 @@ public class HttpCsvClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) {
-        // TODO: More robust parsing
-        List<String> tokens = Arrays.asList(msg.toString(StandardCharsets.UTF_8).split(","));
-        parser.parse(tokens);
-//        log.info();
+        parser.parseLine(msg.toString(StandardCharsets.UTF_8));
     }
 
     @Override

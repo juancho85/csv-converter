@@ -54,11 +54,11 @@ public class ConverterModule extends AbstractModule {
     protected void configure() {
         if(localFilePath != null) {
             bind(RunnerInterface.class).to(LocalFileRunner.class);
-            bind(Key.get(String.class, localFilePath.class)).toInstance(localFilePath);
+            bindConstant().annotatedWith(localFilePath.class).to(localFilePath);
         } else if (remoteFileUrl != null) {
 //            bind(RunnerInterface.class).to(RemoteFileRunner.class);
             bind(RunnerInterface.class).to(NettyRemoteFileRunner.class);
-            bind(Key.get(String.class, remoteFileUrl.class)).toInstance(remoteFileUrl);
+            bindConstant().annotatedWith(remoteFileUrl.class).to(remoteFileUrl);
         }
         bind(new TypeLiteral<List<String>>() {}).annotatedWith(HeadersAnnotation.class).toInstance(headers);
         bind(OutputAggregator.class).to(MultiFileOutputAggregator.class);
